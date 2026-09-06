@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HomeLab Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">◉</div>
+
+            <span>
+                Home<span class="brand-accent">Lab</span>
+            </span>
+        </div>
+
+
+        <nav class="navigation">
+
+            <a href="#" class="nav-item active">
+                <span class="nav-icon">⌂</span>
+                <span>Overview</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-status">
+
+            <div class="status-dot"></div>
+
+            <div>
+                <strong>System OK</strong>
+                <span>All systems running</span>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- HEADER -->
+
+        <header class="header">
+
+            <div>
+                <h1>System Overview</h1>
+
+                <p>
+                    Real-time overview of your HomeLab server
+                </p>
+            </div>
+
+
+            <div class="update-status">
+
+                <span>Last updated:</span>
+
+                <strong id="last-updated">
+                    Never
+                </strong>
+
+                <span class="online-dot"></span>
+
+                <button
+                    id="refresh-btn"
+                    class="refresh-btn"
+                    title="Refresh"
+                >
+                    ↻
+                </button>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= SUMMARY ================= -->
+
+        <section class="summary-grid">
+
+
+            <!-- HOSTNAME -->
+
+            <div class="summary-card">
+
+                <div class="card-icon green">
+                    ▣
+                </div>
+
+                <div class="card-content">
+
+                    <span class="card-label">
+                        Hostname
+                    </span>
+
+                    <strong id="hostname">
+                        --
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- IP -->
+
+            <div class="summary-card">
+
+                <div class="card-icon blue">
+                    ◎
+                </div>
+
+                <div class="card-content">
+
+                    <span class="card-label">
+                        IP Address
+                    </span>
+
+                    <strong id="ip-address">
+                        --
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- UPTIME -->
+
+            <div class="summary-card">
+
+                <div class="card-icon purple">
+                    ◷
+                </div>
+
+                <div class="card-content">
+
+                    <span class="card-label">
+                        Uptime
+                    </span>
+
+                    <strong id="uptime">
+                        --
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- STATUS -->
+
+            <div class="summary-card">
+
+                <div class="card-icon green">
+                    ✓
+                </div>
+
+                <div class="card-content">
+
+                    <span class="card-label">
+                        System Status
+                    </span>
+
+                    <strong
+                        id="system-status"
+                        class="healthy"
+                    >
+                        Healthy
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= RESOURCE CARDS ================= -->
+
+        <section class="resource-grid">
+
+
+            <!-- CPU -->
+
+            <div class="resource-card">
+
+                <div class="resource-header">
+
+                    <div class="resource-title">
+
+                        <span class="resource-icon green">
+                            ▦
+                        </span>
+
+                        <h2>CPU Usage</h2>
+
+                    </div>
+
+                    <span class="resource-live">
+                        LIVE
+                    </span>
+
+                </div>
+
+
+                <div class="gauge">
+
+                    <div
+                        class="gauge-background"
+                    ></div>
+
+                    <div
+                        class="gauge-value cpu-gauge"
+                        id="cpu-gauge"
+                    ></div>
+
+                    <div class="gauge-center">
+
+                        <strong id="cpu-value">
+                            0%
+                        </strong>
+
+                        <span>
+                            CPU utilization
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="resource-footer">
+
+                    <span>0%</span>
+
+                    <span>
+                        Updated every 1s
+                    </span>
+
+                    <span>100%</span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- MEMORY -->
+
+            <div class="resource-card">
+
+                <div class="resource-header">
+
+                    <div class="resource-title">
+
+                        <span class="resource-icon purple">
+                            ▦
+                        </span>
+
+                        <h2>Memory Usage</h2>
+
+                    </div>
+
+                    <span class="resource-live">
+                        LIVE
+                    </span>
+
+                </div>
+
+
+                <div class="gauge">
+
+                    <div
+                        class="gauge-background"
+                    ></div>
+
+                    <div
+                        class="gauge-value memory-gauge"
+                        id="memory-gauge"
+                    ></div>
+
+                    <div class="gauge-center">
+
+                        <strong id="memory-value">
+                            0%
+                        </strong>
+
+                        <span>
+                            Memory utilization
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="resource-footer">
+
+                    <span>0%</span>
+
+                    <span>
+                        Updated every 1s
+                    </span>
+
+                    <span>100%</span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= INFORMATION ================= -->
+
+        <section class="info-grid">
+
+
+            <!-- SYSTEM INFORMATION -->
+
+            <div class="info-card">
+
+                <div class="info-header">
+
+                    <span class="info-icon">
+                        ⓘ
+                    </span>
+
+                    <h2>
+                        System Information
+                    </h2>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Operating System
+                    </span>
+
+                    <strong id="operating-system">
+                        Linux
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Architecture
+                    </span>
+
+                    <strong id="architecture">
+                        x86_64
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Go Version
+                    </span>
+
+                    <strong id="go-version">
+                        Go 1.24
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Monitoring
+                    </span>
+
+                    <strong class="connected">
+                        Active
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- NETWORK INFORMATION -->
+
+            <div class="info-card">
+
+                <div class="info-header">
+
+                    <span class="info-icon">
+                        ⌘
+                    </span>
+
+                    <h2>
+                        Network Information
+                    </h2>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Private IP
+                    </span>
+
+                    <strong id="network-ip">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Interface
+                    </span>
+
+                    <strong id="network-interface">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Connection
+                    </span>
+
+                    <strong
+                        id="connection-status"
+                        class="connected"
+                    >
+                        Connected
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ================= FOOTER ================= -->
+
+        <footer>
+
+            <span>
+                HomeLab Dashboard v1.0.0
+            </span>
+
+            <span class="separator">
+                |
+            </span>
+
+            <span>
+                Built with Go & JavaScript
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
