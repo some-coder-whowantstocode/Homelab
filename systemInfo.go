@@ -197,6 +197,13 @@ func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64) {
 		memoryPercentage = float64(mems[0]-mems[1]) / float64(mems[0]) * 100
 	}
 
+	meminfo := memInfo{
+		Total: uint64(mems[0]),
+		Free:  uint64(mems[1]),
+		Used:  uint64(mems[0] - mems[1]),
+		Usage: memoryPercentage,
+	}
+
 	var cpuUsage float64 = 0
 
 	cpuData, err := getCurrentCpuData()
@@ -234,7 +241,7 @@ func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64) {
 	statMU.Lock()
 	stats = systemStats{
 		Uptime:   uptime,
-		Memory:   memoryPercentage,
+		Memory:   meminfo,
 		Hostname: hostname,
 		IP:       address,
 		CPU:      cpuUsage,

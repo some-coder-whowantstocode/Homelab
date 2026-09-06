@@ -1,5 +1,27 @@
 var timeOutId = null;
 
+function convertkbTogb(kb) {
+
+  if(isNaN(kb)) {
+    return 0;
+  }
+
+  let gb = parseInt(kb) / 1000000;
+  
+  return gb.toFixed(2);
+}
+
+function convertbytesTogb(b) {
+
+  if(isNaN(b)) {
+    return 0;
+  }
+
+  let gb = parseInt(b) / 1000000000;
+  
+  return gb.toFixed(2);
+}
+
 async function fetchStatus() {
   if (timeOutId != null) {
     clearTimeout(timeOutId);
@@ -21,19 +43,32 @@ async function fetchStatus() {
       result.CPU = parseFloat(result.CPU).toFixed(2);
     }
 
-    if (!isNaN(result.Memory)) {
-      result.Memory = parseFloat(result.Memory).toFixed(2);
+    if (!isNaN(result.Memory.Usage)) {
+      result.Memory.Usage = parseFloat(result.Memory.Usage).toFixed(2);
     }
 
-    document.getElementById("hostname").innerText = result.Hostname;
-    document.getElementById("ip-address").innerText = result.IP;
-    document.getElementById("uptime").innerText = result.Uptime + " sec";
-    document.getElementById("cpu-value").innerText = result.CPU + " %";
-    document.getElementById("memory-value").innerText = result.Memory + " %";
+    result.Memory.Total = convertkbTogb(result.Memory.Total);
+    result.Memory.Free = convertkbTogb(result.Memory.Free);
+    result.Memory.Used = convertkbTogb(result.Memory.Used);
 
-    document.getElementById("cpu-gauge").style.setProperty("--percentage", Math.round(result.CPU));
+    if (!isNaN(result.Disk.Usage)) {
+      result.Disk.Usage = parseFloat(result.Disk.Usage).toFixed(2);
+    }
 
-    document.getElementById("memory-gauge").style.setProperty("--percentage", Math.round(result.Memory));
+    result.Disk.Total = convertbytesTogb(result.Disk.Total);
+    result.Disk.Free = convertbytesTogb(result.Disk.Free);
+    result.Disk.Used = convertbytesTogb(result.Disk.Used);
+    result.Disk.Available = convertbytesTogb(result.Disk.Available);
+
+
+    let upTime = parseFloat(result.Uptime);
+    let hours = Math.floor(upTime / 3600);
+    let minutes = Math.floor((upTime % 3600) / 60);
+    let seconds = Math.floor((upTime % 3600) % 60);
+    var uptime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    result.Uptime = uptime;
+
+    updateDashboard(result);
 
     timeOutId = setTimeout(() => {
       fetchStatus();
@@ -43,8 +78,155 @@ async function fetchStatus() {
   }
 }
 
+function updateDashboard(data) {
+  document.getElementById("cpu-value").textContent = Math.round(data.CPU);
+
+  document.getElementById("cpu-progress").style.width = `${data.CPU}%`;
+
+  const cpuStatus = document.getElementById("cpu-status");
+
+  if (data.CPU < 60) {
+    cpuStatus.textContent = "Normal";
+    cpuStatus.style.color = "var(--green)";
+  } else if (data.CPU < 85) {
+    cpuStatus.textContent = "High";
+    cpuStatus.style.color = "var(--orange)";
+  } else {
+    cpuStatus.textContent = "Critical";
+    cpuStatus.style.color = "var(--red)";
+  }
+
+  document.getElementById("memory-value").textContent = Math.round(
+    data.Memory.Usage,
+  );
+
+  document.getElementById("memory-progress").style.width =
+    `${data.Memory.Usage}%`;
+
+  document.getElementById("memory-used").textContent =
+    `${data.Memory.Used} GB used`;
+
+  document.getElementById("memory-total").textContent =
+    `${data.Memory.Total} GB`;
+
+  document.getElementById("disk-value").textContent = Math.round(
+    data.Disk.Usage,
+  );
+
+  document.getElementById("disk-progress").style.width = `${data.Disk.Usage}%`;
+
+  document.getElementById("disk-used").textContent =
+    `${data.Disk.Used} GB used`;
+
+  document.getElementById("disk-available").textContent =
+    `${data.Disk.Available} GB available`;
+
+  document.getElementById("hostname").textContent = data.Hostname;
+
+  document.getElementById("ip-address").textContent = data.IP;
+
+  document.getElementById("uptime").textContent = data.Uptime;
+
+  document.getElementById("last-updated").textContent =
+    new Date().toLocaleTimeString();
+}
+
 document.addEventListener("DOMContentLoaded", (event) => {
   fetchStatus();
 
-  document.getElementById("refresh-btn").addEventListener("click", fetchStatus);
+  lucide.createIcons();
+
+  const ctx = document.getElementById("network-chart");
+
+  const labels = [
+    "10:00",
+    "10:05",
+    "10:10",
+    "10:15",
+    "10:20",
+    "10:25",
+    "10:30",
+    "10:35",
+    "10:40",
+    "10:45",
+    "10:50",
+    "10:55",
+  ];
+
+  const networkChart = new Chart(ctx, {
+    type: "line",
+
+    data: {
+      labels: labels,
+
+      datasets: [
+        {
+          label: "Download",
+          data: [12, 18, 15, 25, 20, 34, 28, 41, 36, 30, 45, 38],
+          borderWidth: 2,
+          tension: 0.35,
+          fill: false,
+        },
+
+        {
+          label: "Upload",
+          data: [5, 8, 7, 12, 9, 15, 11, 18, 14, 17, 13, 20],
+          borderWidth: 2,
+          tension: 0.35,
+          fill: false,
+        },
+      ],
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: "index",
+      },
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            color: "#8995a5",
+            boxWidth: 10,
+            font: {
+              size: 10,
+            },
+          },
+        },
+      },
+
+      scales: {
+        x: {
+          grid: {
+            color: "#1b232d",
+          },
+
+          ticks: {
+            color: "#687586",
+            font: {
+              size: 9,
+            },
+          },
+        },
+
+        y: {
+          beginAtZero: true,
+
+          grid: {
+            color: "#1b232d",
+          },
+
+          ticks: {
+            color: "#687586",
+            font: {
+              size: 9,
+            },
+          },
+        },
+      },
+    },
+  });
 });

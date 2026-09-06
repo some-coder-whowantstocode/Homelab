@@ -7,500 +7,435 @@
 
     <title>HomeLab Dashboard</title>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="app">
+    <div class="app">
 
-    <!-- ================= SIDEBAR ================= -->
+        <aside class="sidebar">
 
-    <aside class="sidebar">
+            <div class="brand">
 
-        <div class="brand">
-            <div class="brand-icon">◉</div>
-
-            <span>
-                Home<span class="brand-accent">Lab</span>
-            </span>
-        </div>
-
-
-        <nav class="navigation">
-
-            <a href="#" class="nav-item active">
-                <span class="nav-icon">⌂</span>
-                <span>Overview</span>
-            </a>
-
-        </nav>
-
-
-        <div class="sidebar-status">
-
-            <div class="status-dot"></div>
-
-            <div>
-                <strong>System OK</strong>
-                <span>All systems running</span>
-            </div>
-
-        </div>
-
-    </aside>
-
-
-    <!-- ================= MAIN ================= -->
-
-    <main class="main">
-
-
-        <!-- HEADER -->
-
-        <header class="header">
-
-            <div>
-                <h1>System Overview</h1>
-
-                <p>
-                    Real-time overview of your HomeLab server
-                </p>
-            </div>
-
-
-            <div class="update-status">
-
-                <span>Last updated:</span>
-
-                <strong id="last-updated">
-                    Never
-                </strong>
-
-                <span class="online-dot"></span>
-
-                <button
-                    id="refresh-btn"
-                    class="refresh-btn"
-                    title="Refresh"
-                >
-                    ↻
-                </button>
-
-            </div>
-
-        </header>
-
-
-
-        <!-- ================= SUMMARY ================= -->
-
-        <section class="summary-grid">
-
-
-            <!-- HOSTNAME -->
-
-            <div class="summary-card">
-
-                <div class="card-icon green">
-                    ▣
+                <div class="brand-icon">
+                    <i data-lucide="server"></i>
                 </div>
 
-                <div class="card-content">
+                <div>
+                    <div class="brand-name">HomeLab</div>
+                    <div class="brand-subtitle">Server Control</div>
+                </div>
 
-                    <span class="card-label">
-                        Hostname
+            </div>
+
+
+            <div class="nav-title">Overview</div>
+
+            <nav class="nav">
+
+                <a href="#" class="nav-item active">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <i data-lucide="hard-drive"></i>
+                    <span>Storage</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <i data-lucide="network"></i>
+                    <span>Network</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <i data-lucide="cpu"></i>
+                    <span>Processes</span>
+                </a>
+
+            </nav>
+
+
+            <div class="nav-title">Management</div>
+
+            <nav class="nav">
+
+                <a href="#" class="nav-item">
+                    <i data-lucide="activity"></i>
+                    <span>Services</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <i data-lucide="container"></i>
+                    <span>Containers</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <i data-lucide="monitor-smartphone"></i>
+                    <span>Devices</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <i data-lucide="file-text"></i>
+                    <span>Logs</span>
+                </a>
+
+            </nav>
+
+
+            <div class="sidebar-bottom">
+
+                <div class="server-status">
+
+                    <div class="server-status-title">
+                        SERVER STATUS
+                    </div>
+
+                    <div class="status-row">
+                        <div class="status-dot"></div>
+                        <span>System Online</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =========================
+         MAIN
+    ========================== -->
+
+        <main class="main">
+
+            <!-- HEADER -->
+
+            <header class="header">
+
+                <div>
+                    <h1 class="page-title">Dashboard</h1>
+
+                    <p class="page-description">
+                        System overview and resource utilization
+                    </p>
+                </div>
+
+                <div class="header-right">
+
+                    <span class="refresh-info">
+                        Updated <span id="last-updated">just now</span>
                     </span>
 
-                    <strong id="hostname">
-                        --
-                    </strong>
+                    <button class="refresh-btn" id="refresh-btn" title="Refresh">
+                        <i data-lucide="refresh-cw"></i>
+                    </button>
 
                 </div>
 
-            </div>
+            </header>
 
+            <section class="summary-grid">
 
+                <!-- CPU -->
 
-            <!-- IP -->
+                <div class="summary-card">
 
-            <div class="summary-card">
+                    <div class="card-top">
 
-                <div class="card-icon blue">
-                    ◎
-                </div>
+                        <div class="card-title">
 
-                <div class="card-content">
+                            <div class="card-icon cpu-icon">
+                                <i data-lucide="cpu"></i>
+                            </div>
 
-                    <span class="card-label">
-                        IP Address
-                    </span>
+                            CPU Usage
 
-                    <strong id="ip-address">
-                        --
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- UPTIME -->
-
-            <div class="summary-card">
-
-                <div class="card-icon purple">
-                    ◷
-                </div>
-
-                <div class="card-content">
-
-                    <span class="card-label">
-                        Uptime
-                    </span>
-
-                    <strong id="uptime">
-                        --
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- STATUS -->
-
-            <div class="summary-card">
-
-                <div class="card-icon green">
-                    ✓
-                </div>
-
-                <div class="card-content">
-
-                    <span class="card-label">
-                        System Status
-                    </span>
-
-                    <strong
-                        id="system-status"
-                        class="healthy"
-                    >
-                        Healthy
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ================= RESOURCE CARDS ================= -->
-
-        <section class="resource-grid">
-
-
-            <!-- CPU -->
-
-            <div class="resource-card">
-
-                <div class="resource-header">
-
-                    <div class="resource-title">
-
-                        <span class="resource-icon green">
-                            ▦
-                        </span>
-
-                        <h2>CPU Usage</h2>
+                        </div>
 
                     </div>
 
-                    <span class="resource-live">
-                        LIVE
-                    </span>
-
-                </div>
-
-
-                <div class="gauge">
-
-                    <div
-                        class="gauge-background"
-                    ></div>
-
-                    <div
-                        class="gauge-value cpu-gauge"
-                        id="cpu-gauge"
-                    ></div>
-
-                    <div class="gauge-center">
-
-                        <strong id="cpu-value">
-                            0%
-                        </strong>
-
-                        <span>
-                            CPU utilization
+                    <div>
+                        <span class="percentage" id="cpu-value">
+                            23
                         </span>
 
+                        <span class="unit">%</span>
+                    </div>
+
+                    <div class="progress">
+                        <div id="cpu-progress" class="progress-bar cpu-progress"></div>
+                    </div>
+
+                    <div class="card-footer">
+                        <span>Current usage</span>
+                        <span id="cpu-status">Normal</span>
                     </div>
 
                 </div>
 
 
-                <div class="resource-footer">
+                <div class="summary-card">
 
-                    <span>0%</span>
+                    <div class="card-top">
 
-                    <span>
-                        Updated every 1s
-                    </span>
+                        <div class="card-title">
 
-                    <span>100%</span>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- MEMORY -->
-
-            <div class="resource-card">
-
-                <div class="resource-header">
-
-                    <div class="resource-title">
-
-                        <span class="resource-icon purple">
-                            ▦
-                        </span>
-
-                        <h2>Memory Usage</h2>
+                            <div class="card-icon memory-icon">
+                                <i data-lucide="memory-stick"></i>
+                            </div>
+                            Memory Usage
+                        </div>
 
                     </div>
 
-                    <span class="resource-live">
-                        LIVE
-                    </span>
-
-                </div>
-
-
-                <div class="gauge">
-
-                    <div
-                        class="gauge-background"
-                    ></div>
-
-                    <div
-                        class="gauge-value memory-gauge"
-                        id="memory-gauge"
-                    ></div>
-
-                    <div class="gauge-center">
-
-                        <strong id="memory-value">
-                            0%
-                        </strong>
-
-                        <span>
-                            Memory utilization
-                        </span>
-
+                    <div>
+                        <span class="percentage" id="memory-value"></span>
+                        <span class="unit">%</span>
                     </div>
 
+                    <div class="progress">
+                        <div id="memory-progress" class="progress-bar memory-progress"></div>
+                    </div>
+                    <div class="card-footer">
+                        <span id="memory-used"></span>
+                        <span id="memory-total"></span>
+                    </div>
                 </div>
 
+                <div class="summary-card">
+                    <div class="card-top">
+                        <div class="card-title">
+                            <div class="card-icon disk-icon">
+                                <i data-lucide="hard-drive"></i>
+                            </div>
+                            Disk Usage
+                        </div>
+                    </div>
 
-                <div class="resource-footer">
+                    <div>
+                        <span class="percentage" id="disk-value"></span>
+                        <span class="unit">%</span>
+                    </div>
 
-                    <span>0%</span>
+                    <div class="progress">
+                        <div id="disk-progress" class="progress-bar disk-progress"></div>
+                    </div>
 
-                    <span>
-                        Updated every 1s
-                    </span>
-
-                    <span>100%</span>
-
+                    <div class="card-footer">
+                        <span id="disk-used"></span>
+                        <span id="disk-available"></span>
+                    </div>
                 </div>
 
-            </div>
+            </section>
 
-        </section>
+            <section class="content-grid">
 
+                <div>
 
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><i data-lucide="server"></i>System Information</div>
+                            <span class="panel-subtitle">Live system data</span>
+                        </div>
 
-        <!-- ================= INFORMATION ================= -->
+                        <div class="system-info">
+                            <div class="info-item">
+                                <div class="info-label">Host Name</div>
+                                <div class="info-value" id="hostname"></div>
+                            </div>
 
-        <section class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">IP Address</div>
+                                <div class="info-value" id="ip-address"></div>
+                            </div>
 
+                            <div class="info-item">
+                                <div class="info-label">Uptime</div>
+                                <div class="info-value" id="uptime"></div>
 
-            <!-- SYSTEM INFORMATION -->
-
-            <div class="info-card">
-
-                <div class="info-header">
-
-                    <span class="info-icon">
-                        ⓘ
-                    </span>
-
-                    <h2>
-                        System Information
-                    </h2>
-
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Operating System</div>
+                                <div class="info-value"></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Architecture</div>
+                                <div class="info-value"></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Kernel</div>
+                                <div class="info-value"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel" style="margin-top:18px;">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i data-lucide="activity"></i>
+                                Network Traffic
+                            </div>
+                            <div class="chart-controls">
+                                <button class="chart-btn active">1H</button>
+                                <button class="chart-btn">6H</button>
+                                <button class="chart-btn">24H</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="network-chart"></canvas>
+                        </div>
+                    </div>
                 </div>
-
-
-                <div class="info-row">
-
-                    <span>
-                        Operating System
-                    </span>
-
-                    <strong id="operating-system">
-                        Linux
-                    </strong>
-
+                <div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i data-lucide="activity"></i>
+                                Services
+                            </div>
+                            <span class="panel-subtitle">
+                                4 services
+                            </span>
+                        </div>
+                        <div class="services">
+                            <div class="service">
+                                <div class="service-left">
+                                    <div class="service-icon">
+                                        <i data-lucide="globe"></i>
+                                    </div>
+                                    <div>
+                                        <div class="service-name">
+                                            Web Server
+                                        </div>
+                                        <div class="service-description">
+                                            HTTP :8080
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="service-status online">
+                                    <span class="status-dot"></span>
+                                    Online
+                                </div>
+                            </div>
+                            <div class="service">
+                                <div class="service-left">
+                                    <div class="service-icon">
+                                        <i data-lucide="database"></i>
+                                    </div>
+                                    <div>
+                                        <div class="service-name">
+                                            PostgreSQL
+                                        </div>
+                                        <div class="service-description">
+                                            Database
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="service-status online">
+                                    <span class="status-dot"></span>
+                                    Online
+                                </div>
+                            </div>
+                            <div class="service">
+                                <div class="service-left">
+                                    <div class="service-icon">
+                                        <i data-lucide="container"></i>
+                                    </div>
+                                    <div>
+                                        <div class="service-name">
+                                            Docker
+                                        </div>
+                                        <div class="service-description">
+                                            Container runtime
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="service-status online">
+                                    <span class="status-dot"></span>
+                                    Online
+                                </div>
+                            </div>
+                            <div class="service">
+                                <div class="service-left">
+                                    <div class="service-icon">
+                                        <i data-lucide="hard-drive"></i>
+                                    </div>
+                                    <div>
+                                        <div class="service-name">
+                                            Storage
+                                        </div>
+                                        <div class="service-description">
+                                            File storage
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="service-status online">
+                                    <span class="status-dot"></span>
+                                    Online
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel" style="margin-top:18px;">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i data-lucide="clock-3"></i>
+                                Recent Activity
+                            </div>
+                        </div>
+                        <div class="activity">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i data-lucide="server"></i>
+                                </div>
+                                <div>
+                                    <div class="activity-text">
+                                        System monitoring started
+                                    </div>
+                                    <div class="activity-time">
+                                        2 minutes ago
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i data-lucide="network"></i>
+                                </div>
+                                <div>
+                                    <div class="activity-text">
+                                        Network interface detected
+                                    </div>
+                                    <div class="activity-time">
+                                        5 minutes ago
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i data-lucide="database"></i>
+                                </div>
+                                <div>
+                                    <div class="activity-text">
+                                        Database service checked
+                                    </div>
+                                    <div class="activity-time">
+                                        8 minutes ago
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </section>
+        </main>
+    </div>
 
 
-                <div class="info-row">
-
-                    <span>
-                        Architecture
-                    </span>
-
-                    <strong id="architecture">
-                        x86_64
-                    </strong>
-
-                </div>
-
-
-                <div class="info-row">
-
-                    <span>
-                        Go Version
-                    </span>
-
-                    <strong id="go-version">
-                        Go 1.24
-                    </strong>
-
-                </div>
-
-
-                <div class="info-row">
-
-                    <span>
-                        Monitoring
-                    </span>
-
-                    <strong class="connected">
-                        Active
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- NETWORK INFORMATION -->
-
-            <div class="info-card">
-
-                <div class="info-header">
-
-                    <span class="info-icon">
-                        ⌘
-                    </span>
-
-                    <h2>
-                        Network Information
-                    </h2>
-
-                </div>
-
-
-                <div class="info-row">
-
-                    <span>
-                        Private IP
-                    </span>
-
-                    <strong id="network-ip">
-                        --
-                    </strong>
-
-                </div>
-
-
-                <div class="info-row">
-
-                    <span>
-                        Interface
-                    </span>
-
-                    <strong id="network-interface">
-                        --
-                    </strong>
-
-                </div>
-
-
-                <div class="info-row">
-
-                    <span>
-                        Connection
-                    </span>
-
-                    <strong
-                        id="connection-status"
-                        class="connected"
-                    >
-                        Connected
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ================= FOOTER ================= -->
-
-        <footer>
-
-            <span>
-                HomeLab Dashboard v1.0.0
-            </span>
-
-            <span class="separator">
-                |
-            </span>
-
-            <span>
-                Built with Go & JavaScript
-            </span>
-
-        </footer>
-
-    </main>
-
-</div>
-
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 
 </body>
 

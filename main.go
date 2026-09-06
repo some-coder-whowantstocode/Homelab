@@ -9,7 +9,7 @@ import (
 
 type systemStats struct {
 	Uptime   float64
-	Memory   float64
+	Memory   memInfo
 	Hostname string
 	IP       string
 	CPU      float64
@@ -24,22 +24,18 @@ type diskInfo struct {
 	Usage     float64
 }
 
-func initStats() systemStats {
-	return systemStats{
-		Uptime:   0,
-		Memory:   0,
-		Hostname: "",
-		IP:       "",
-		CPU:      0,
-		Disk:     diskInfo{},
-	}
+type memInfo struct {
+	Total uint64
+	Free  uint64
+	Used  uint64
+	Usage float64
 }
 
 var statMU sync.RWMutex
 
 var cpuUsageTracker float64 = 0
 
-var stats systemStats = initStats()
+var stats systemStats
 
 func status(w http.ResponseWriter, r *http.Request) {
 
