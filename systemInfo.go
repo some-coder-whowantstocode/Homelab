@@ -150,21 +150,155 @@ func getCurrentCpuData() ([2]int, error) {
 	return [2]int{total, idle}, nil
 }
 
+func getDiskInfo() (diskInfo, error) {
+
+	var statfs syscall.Statfs_t
+	var diskinfo diskInfo
+
+	err := syscall.Statfs("/", &statfs)
+	if err != nil {
+		return diskinfo, err
+	}
+
+	total := statfs.Blocks * uint64(statfs.Bsize)
+	available := statfs.Bavail * uint64(statfs.Bsize)
+	free := statfs.Bfree * uint64(statfs.Bsize)
+	used := total - available
+
+	var usage float64 = 0
+
+	if total != 0 {
+		usage = float64(used) / float64(total) * 100
+	}
+
+	diskinfo = diskInfo{
+		Total:     total,
+		Available: available,
+		Free:      free,
+		Used:      used,
+		Usage:     usage,
+	}
+
+	return diskinfo, nil
+
+}
+
+func getNetworkInfo() (networkInfo, error) {
+
+	var netData networkInfo
+
+	val, err := net.Interfaces()
+	if err != nil {
+		return netData, err
+	}
+
+	interfaceName := ""
+
+	for _, value := range val {
+
+		if value.Flags&net.FlagUp == 0 || value.Flags&net.FlagBroadcast == 0 || value.Flags&net.FlagRunning == 0 {
+			continue
+		}
+
+		interfaceName = value.Name
+
+	}
+
+	if interfaceName == "" {
+		return netData, fmt.Errorf("No Interface Found")
+	}
+
+	fileData, err := os.ReadFile("/proc/net/dev")
+	if err != nil {
+		return netData, err
+	}
+
+	var name string
+	var body string
+
+	data := strings.Split(string(fileData), "\n")
+
+	for _, line := range data {
+
+		line = strings.TrimSpace(line)
+
+		lineParts := strings.Split(line, ":")
+
+		if len(lineParts) < 2 {
+			continue
+		}
+
+		name = lineParts[0]
+		body = lineParts[1]
+
+		if name == interfaceName {
+			break
+		}
+	}
+
+	if name == "" {
+		return netData, fmt.Errorf("network interface %q not found", interfaceName)
+	}
+
+	fields := strings.Fields(body)
+
+	if len(fields) < 12 {
+		return netData, fmt.Errorf("invalid network statistics for %s", interfaceName)
+	}
+
+	rxBytes := convertStrToUint64(fields[0])
+	rxPackets := convertStrToUint64(fields[1])
+	rxErrors := convertStrToUint64(fields[2])
+	rxDrops := convertStrToUint64(fields[3])
+
+	txBytes := convertStrToUint64(fields[8])
+	txPackets := convertStrToUint64(fields[9])
+	txErrors := convertStrToUint64(fields[10])
+	txDrops := convertStrToUint64(fields[11])
+
+	netData = networkInfo{
+		Interface: interfaceName,
+		RXBytes:   rxBytes,
+		TXBytes:   txBytes,
+		RXPackets: rxPackets,
+		TXPackets: txPackets,
+		RXErrors:  rxErrors,
+		TXErrors:  txErrors,
+		RXDrops:   rxDrops,
+		TXDrops:   txDrops,
+	}
+
+	return netData, nil
+
+}
+
+func convertStrToUint64(val string) uint64 {
+
+	data, err := strconv.ParseUint(val, 10, 64)
+	if err != nil {
+		fmt.Println(err.Error())
+		return 0
+	}
+	return data
+}
+
 func storeStatus() {
 
 	var lastTotal int = 0
 	var lastIdle int = 0
 	var lastCpuUsage float64 = 0
+	var lastRXBytes uint64
+	var lastTXBytes uint64
 
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		getStatus(&lastTotal, &lastIdle, &lastCpuUsage)
+		getStatus(&lastTotal, &lastIdle, &lastCpuUsage, &lastRXBytes, &lastTXBytes)
 	}
 }
 
-func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64) {
+func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes *uint64, lastTXBytes *uint64) {
 
 	uptime, err := getUpTime()
 	if err != nil {
@@ -238,48 +372,30 @@ func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64) {
 		fmt.Println(err.Error())
 	}
 
+	netData, err := getNetworkInfo()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	if *lastRXBytes != 0 && *lastTXBytes != 0 {
+
+		netData.RXRate = netData.RXBytes - *lastRXBytes
+		netData.TXRate = netData.TXBytes - *lastTXBytes
+	}
+
+	*lastRXBytes = netData.RXBytes
+	*lastTXBytes = netData.TXBytes
+
 	statMU.Lock()
 	stats = systemStats{
 		Uptime:   uptime,
-		Memory:   meminfo,
 		Hostname: hostname,
 		IP:       address,
 		CPU:      cpuUsage,
+		Memory:   meminfo,
 		Disk:     diskInfo,
+		Network:  netData,
 	}
 	statMU.Unlock()
-
-}
-
-func getDiskInfo() (diskInfo, error) {
-
-	var statfs syscall.Statfs_t
-	var diskinfo diskInfo
-
-	err := syscall.Statfs("/", &statfs)
-	if err != nil {
-		return diskinfo, err
-	}
-
-	total := statfs.Blocks * uint64(statfs.Bsize)
-	available := statfs.Bavail * uint64(statfs.Bsize)
-	free := statfs.Bfree * uint64(statfs.Bsize)
-	used := total - available
-
-	var usage float64 = 0
-
-	if total != 0 {
-		usage = float64(used) / float64(total) * 100
-	}
-
-	diskinfo = diskInfo{
-		Total:     total,
-		Available: available,
-		Free:      free,
-		Used:      used,
-		Usage:     usage,
-	}
-
-	return diskinfo, nil
 
 }

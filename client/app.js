@@ -72,7 +72,7 @@ async function fetchStatus() {
 
     timeOutId = setTimeout(() => {
       fetchStatus();
-    }, 1000);
+    }, 2000);
   } catch (error) {
     console.log(error.message);
   }
@@ -129,6 +129,66 @@ function updateDashboard(data) {
 
   document.getElementById("last-updated").textContent =
     new Date().toLocaleTimeString();
+
+  updateNetwork(data.Network)
+}
+
+function formatBytes(bytes) {
+    if (bytes < 1024) {
+        return `${bytes} B`;
+    }
+
+    if (bytes < 1024 * 1024) {
+        return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+
+    if (bytes < 1024 * 1024 * 1024) {
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+}
+
+
+function formatRate(bytesPerSecond) {
+    return `${formatBytes(bytesPerSecond)}/s`;
+}
+
+
+function updateNetwork(network) {
+
+    document.getElementById("network-interface").textContent =
+        network.Interface;
+
+    document.getElementById("network-rx-rate").textContent =
+        formatRate(network.RXRate);
+
+    document.getElementById("network-tx-rate").textContent =
+        formatRate(network.TXRate);
+
+    document.getElementById("network-rx-total").textContent =
+        formatBytes(network.RXBytes);
+
+    document.getElementById("network-tx-total").textContent =
+        formatBytes(network.TXBytes);
+
+    document.getElementById("network-rx-packets").textContent =
+        network.RXPackets.toLocaleString();
+
+    document.getElementById("network-tx-packets").textContent =
+        network.TXPackets.toLocaleString();
+
+    const errors =
+        network.RXErrors + network.TXErrors;
+
+    const drops =
+        network.RXDrops + network.TXDrops;
+
+    document.getElementById("network-errors").textContent =
+        errors.toLocaleString();
+
+    document.getElementById("network-drops").textContent =
+        drops.toLocaleString();
 }
 
 document.addEventListener("DOMContentLoaded", (event) => {
@@ -229,4 +289,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
       },
     },
   });
+
+  document.getElementById("refresh-btn").addEventListener("click",fetchStatus)
 });

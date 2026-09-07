@@ -9,11 +9,12 @@ import (
 
 type systemStats struct {
 	Uptime   float64
-	Memory   memInfo
 	Hostname string
 	IP       string
 	CPU      float64
+	Memory   memInfo
 	Disk     diskInfo
+	Network  networkInfo
 }
 
 type diskInfo struct {
@@ -29,6 +30,20 @@ type memInfo struct {
 	Free  uint64
 	Used  uint64
 	Usage float64
+}
+
+type networkInfo struct {
+	Interface string
+	RXRate    uint64
+	TXRate    uint64
+	RXBytes   uint64
+	TXBytes   uint64
+	RXPackets uint64
+	TXPackets uint64
+	RXErrors  uint64
+	TXErrors  uint64
+	RXDrops   uint64
+	TXDrops   uint64
 }
 
 var statMU sync.RWMutex

@@ -160,7 +160,6 @@
 
                     <div>
                         <span class="percentage" id="cpu-value">
-                            23
                         </span>
 
                         <span class="unit">%</span>
@@ -290,7 +289,7 @@
                         </div>
                     </div>
                 </div>
-                <div>
+                <!-- <div>
                     <div class="panel">
                         <div class="panel-header">
                             <div class="panel-title">
@@ -429,7 +428,80 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
+                <!-- Network Card -->
+                <section class="network-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title">Network</div>
+                            <div class="card-subtitle" id="network-interface">
+                                wlp0s20f3
+                            </div>
+                        </div>
+
+                        <div class="network-status">
+                            <span class="status-dot"></span>
+                            <span>Connected</span>
+                        </div>
+                    </div>
+
+                    <div class="network-speed">
+                        <div class="speed-item">
+                            <div class="speed-label">
+                                <span class="speed-icon download">↓</span>
+                                Download
+                            </div>
+                            <div class="speed-value" id="network-rx-rate">0 B/s</div>
+                        </div>
+
+                        <div class="speed-divider"></div>
+
+                        <div class="speed-item">
+                            <div class="speed-label">
+                                <span class="speed-icon upload">↑</span>
+                                Upload
+                            </div>
+                            <div class="speed-value" id="network-tx-rate">0 B/s</div>
+                        </div>
+                    </div>
+
+                    <div class="network-total">
+                        <div class="traffic-item">
+                            <span>Received</span>
+                            <strong id="network-rx-total">0 B</strong>
+                        </div>
+
+                        <div class="traffic-item">
+                            <span>Sent</span>
+                            <strong id="network-tx-total">0 B</strong>
+                        </div>
+                    </div>
+
+                    <div class="network-health">
+                        <div class="health-item">
+                            <span>RX Packets</span>
+                            <strong id="network-rx-packets">0</strong>
+                        </div>
+
+                        <div class="health-item">
+                            <span>TX Packets</span>
+                            <strong id="network-tx-packets">0</strong>
+                        </div>
+
+                        <div class="health-item">
+                            <span>Errors</span>
+                            <strong id="network-errors">0</strong>
+                        </div>
+
+                        <div class="health-item">
+                            <span>Drops</span>
+                            <strong id="network-drops">0</strong>
+                        </div>
+
+                        
+                    </div>
+                </section>
+
             </section>
         </main>
     </div>
