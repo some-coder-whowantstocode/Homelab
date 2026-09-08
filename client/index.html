@@ -498,8 +498,60 @@
                             <strong id="network-drops">0</strong>
                         </div>
 
-                        
+
                     </div>
+                </section>
+                <!-- Process Monitor -->
+                <section class="process-card">
+
+                    <div class="process-header">
+                        <div>
+                            <div class="card-title">Processes</div>
+                            <div class="card-subtitle">
+                                Running processes on this server
+                            </div>
+                        </div>
+
+                        <div class="process-count">
+                            <strong id="process-count">142</strong>
+                            <span>running</span>
+                        </div>
+                    </div>
+
+
+                    <div class="process-table-wrapper">
+
+                        <table class="process-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Process</th>
+                                    <th>PID</th>
+                                    <th>CPU</th>
+                                    <th>Memory</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="process-list">
+                                <!-- Process rows inserted by JavaScript -->
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <div class="process-footer">
+                        <span id="process-updated">
+                            Updated just now
+                        </span>
+
+                        <button class="process-view-btn">
+                            View all processes →
+                        </button>
+                    </div>
+
                 </section>
 
             </section>

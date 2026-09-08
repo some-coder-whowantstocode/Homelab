@@ -298,6 +298,63 @@ func storeStatus() {
 	}
 }
 
+func getProcesses() {
+	data, err := os.ReadDir("/proc")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	process := map[string]string{}
+
+	for _, d := range data {
+
+		if !d.IsDir() {
+			continue
+		}
+
+		_, err := strconv.Atoi(d.Name())
+
+		if err != nil {
+			continue
+		}
+
+		statusFile, err := os.ReadFile("/proc/" + d.Name() + "/status")
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		stsData := strings.TrimSpace(string(statusFile))
+		stsDataArr := strings.Split(stsData, "\n")
+		if len(stsDataArr) < 7 {
+			continue
+		}
+
+		nameArr := strings.Split(stsDataArr[0], ":")
+		if len(nameArr) < 2 {
+			continue
+		}
+
+		ppidArr := strings.Split(stsDataArr[6], ":")
+		if len(ppidArr) < 2 {
+			continue
+		}
+
+		name := strings.TrimSpace(nameArr[1])
+		ppid := strings.TrimSpace(ppidArr[1])
+
+		if ppid == "0" {
+			process[d.Name()] = name
+		}
+
+		// fmt.Println(d.Name(), name[1], ppid[1])
+
+	}
+
+	fmt.Println(process)
+
+}
+
 func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes *uint64, lastTXBytes *uint64) {
 
 	uptime, err := getUpTime()
@@ -385,6 +442,8 @@ func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes
 
 	*lastRXBytes = netData.RXBytes
 	*lastTXBytes = netData.TXBytes
+
+	getProcesses()
 
 	statMU.Lock()
 	stats = systemStats{

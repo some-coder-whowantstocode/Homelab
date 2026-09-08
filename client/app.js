@@ -191,6 +191,112 @@ function updateNetwork(network) {
         drops.toLocaleString();
 }
 
+const dummyProcesses = [
+    {
+        name: "chrome",
+        pid: 8421,
+        cpu: 12.4,
+        memory: 1240,
+        status: "Running"
+    },
+    {
+        name: "code",
+        pid: 6312,
+        cpu: 8.7,
+        memory: 842,
+        status: "Running"
+    },
+    {
+        name: "go",
+        pid: 9214,
+        cpu: 4.2,
+        memory: 124,
+        status: "Running"
+    },
+    {
+        name: "systemd",
+        pid: 1,
+        cpu: 0.1,
+        memory: 12,
+        status: "Running"
+    },
+    {
+        name: "NetworkManager",
+        pid: 1032,
+        cpu: 0.3,
+        memory: 28,
+        status: "Running"
+    }
+];
+
+
+function formatMemory(memoryMB) {
+
+    if (memoryMB >= 1024) {
+        return `${(memoryMB / 1024).toFixed(1)} GB`;
+    }
+
+    return `${memoryMB} MB`;
+}
+
+
+function updateProcesses(processes) {
+
+    const processList =
+        document.getElementById("process-list");
+
+    processList.innerHTML = "";
+
+    processes.forEach(process => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>
+                <span class="process-name">
+                    ${process.name}
+                </span>
+            </td>
+
+            <td>
+                <span class="process-pid">
+                    ${process.pid}
+                </span>
+            </td>
+
+            <td>
+                <span class="process-cpu">
+                    ${process.cpu.toFixed(1)}%
+                </span>
+            </td>
+
+            <td>
+                <span class="process-memory">
+                    ${formatMemory(process.memory)}
+                </span>
+            </td>
+
+            <td>
+                <span class="process-status">
+                    <span class="process-status-dot"></span>
+                    ${process.status}
+                </span>
+            </td>
+        `;
+
+        processList.appendChild(row);
+    });
+
+    document.getElementById("process-count").textContent =
+        processes.length;
+
+    document.getElementById("process-updated").textContent =
+        "Updated just now";
+}
+
+
+updateProcesses(dummyProcesses);
+
 document.addEventListener("DOMContentLoaded", (event) => {
   fetchStatus();
 
@@ -289,6 +395,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
       },
     },
   });
+
+  updateProcesses(data.processes);
 
   document.getElementById("refresh-btn").addEventListener("click",fetchStatus)
 });

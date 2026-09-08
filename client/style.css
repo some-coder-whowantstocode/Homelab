@@ -828,3 +828,175 @@ body {
     font-size: 18px;
   }
 }
+
+/* =========================
+   Process Monitor
+   ========================= */
+
+.process-card {
+    margin-top: 20px;
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    padding: 24px;
+    color: #f9fafb;
+}
+
+.process-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.process-count {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.process-count strong {
+    color: #f9fafb;
+    font-size: 20px;
+    font-family: monospace;
+}
+
+
+/* Table */
+
+.process-table-wrapper {
+    overflow-x: auto;
+}
+
+.process-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.process-table th {
+    text-align: left;
+    padding: 11px 12px;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #1f2937;
+}
+
+.process-table td {
+    padding: 13px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid #1f2937;
+}
+
+.process-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.process-table tbody tr:hover {
+    background: #172033;
+}
+
+
+/* Process name */
+
+.process-name {
+    font-weight: 500;
+    color: #e5e7eb;
+}
+
+
+/* PID */
+
+.process-pid {
+    color: #6b7280;
+    font-family: monospace;
+}
+
+
+/* CPU */
+
+.process-cpu {
+    color: #60a5fa;
+    font-family: monospace;
+}
+
+
+/* Memory */
+
+.process-memory {
+    color: #a78bfa;
+    font-family: monospace;
+}
+
+
+/* Status */
+
+.process-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.process-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+
+/* Footer */
+
+.process-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 15px;
+    border-top: 1px solid #1f2937;
+}
+
+#process-updated {
+    color: #6b7280;
+    font-size: 11px;
+}
+
+.process-view-btn {
+    background: transparent;
+    border: none;
+    color: #60a5fa;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.process-view-btn:hover {
+    color: #93c5fd;
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+    .process-card {
+        padding: 18px;
+    }
+
+    .process-header {
+        margin-bottom: 15px;
+    }
+
+    .process-footer {
+        align-items: flex-start;
+        gap: 10px;
+        flex-direction: column;
+    }
+
+}
