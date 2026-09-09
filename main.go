@@ -15,6 +15,7 @@ type systemStats struct {
 	Memory   memInfo
 	Disk     diskInfo
 	Network  networkInfo
+	Process  []processInfo
 }
 
 type diskInfo struct {
@@ -44,6 +45,17 @@ type networkInfo struct {
 	TXErrors  uint64
 	RXDrops   uint64
 	TXDrops   uint64
+}
+
+type processInfo struct {
+	PID           int64
+	PPID          int64
+	Name          string
+	Status        string
+	TotalCPUUsage int64
+	CPU           float64
+	Memory        int64
+	StartTime     int64
 }
 
 var statMU sync.RWMutex

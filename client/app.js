@@ -131,6 +131,7 @@ function updateDashboard(data) {
     new Date().toLocaleTimeString();
 
   updateNetwork(data.Network)
+  updateProcesses(data.Process);
 }
 
 function formatBytes(bytes) {
@@ -191,44 +192,6 @@ function updateNetwork(network) {
         drops.toLocaleString();
 }
 
-const dummyProcesses = [
-    {
-        name: "chrome",
-        pid: 8421,
-        cpu: 12.4,
-        memory: 1240,
-        status: "Running"
-    },
-    {
-        name: "code",
-        pid: 6312,
-        cpu: 8.7,
-        memory: 842,
-        status: "Running"
-    },
-    {
-        name: "go",
-        pid: 9214,
-        cpu: 4.2,
-        memory: 124,
-        status: "Running"
-    },
-    {
-        name: "systemd",
-        pid: 1,
-        cpu: 0.1,
-        memory: 12,
-        status: "Running"
-    },
-    {
-        name: "NetworkManager",
-        pid: 1032,
-        cpu: 0.3,
-        memory: 28,
-        status: "Running"
-    }
-];
-
 
 function formatMemory(memoryMB) {
 
@@ -254,32 +217,32 @@ function updateProcesses(processes) {
         row.innerHTML = `
             <td>
                 <span class="process-name">
-                    ${process.name}
+                    ${process.Name}
                 </span>
             </td>
 
             <td>
                 <span class="process-pid">
-                    ${process.pid}
+                    ${process.PID}
                 </span>
             </td>
 
             <td>
                 <span class="process-cpu">
-                    ${process.cpu.toFixed(1)}%
+                    ${process.CPU.toFixed(1)}%
                 </span>
             </td>
 
             <td>
                 <span class="process-memory">
-                    ${formatMemory(process.memory)}
+                    ${formatMemory(process.Memory)}
                 </span>
             </td>
 
             <td>
                 <span class="process-status">
                     <span class="process-status-dot"></span>
-                    ${process.status}
+                    ${process.Status}
                 </span>
             </td>
         `;
@@ -295,7 +258,7 @@ function updateProcesses(processes) {
 }
 
 
-updateProcesses(dummyProcesses);
+// updateProcesses(dummyProcesses);
 
 document.addEventListener("DOMContentLoaded", (event) => {
   fetchStatus();
@@ -396,7 +359,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     },
   });
 
-  updateProcesses(data.processes);
 
   document.getElementById("refresh-btn").addEventListener("click",fetchStatus)
 });

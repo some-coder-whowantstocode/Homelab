@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"syscall"
@@ -289,23 +290,25 @@ func storeStatus() {
 	var lastCpuUsage float64 = 0
 	var lastRXBytes uint64
 	var lastTXBytes uint64
+	var lastProcesses map[int64]int64 = map[int64]int64{}
+	lastTime := time.Now()
 
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		getStatus(&lastTotal, &lastIdle, &lastCpuUsage, &lastRXBytes, &lastTXBytes)
+		getStatus(&lastTotal, &lastIdle, &lastCpuUsage, &lastRXBytes, &lastTXBytes, lastProcesses, &lastTime)
 	}
 }
 
-func getProcesses() {
+func getProcesses() ([]processInfo, error) {
+
+	processes := []processInfo{}
+
 	data, err := os.ReadDir("/proc")
 	if err != nil {
-		fmt.Println(err.Error())
-		return
+		return processes, err
 	}
-
-	process := map[string]string{}
 
 	for _, d := range data {
 
@@ -319,43 +322,95 @@ func getProcesses() {
 			continue
 		}
 
-		statusFile, err := os.ReadFile("/proc/" + d.Name() + "/status")
+		proc_status_map := parse_proc_pid_status("/proc/" + d.Name() + "/status")
+		proc_stat_map := parse_proc_pid_stat("/proc/" + d.Name() + "/stat")
+
+		if len(proc_status_map) == 0 || len(proc_stat_map) == 0 {
+			continue
+		}
+
+		pid, err := strconv.Atoi(proc_status_map["Pid"])
 		if err != nil {
-			fmt.Println(err.Error())
-		}
-
-		stsData := strings.TrimSpace(string(statusFile))
-		stsDataArr := strings.Split(stsData, "\n")
-		if len(stsDataArr) < 7 {
 			continue
 		}
 
-		nameArr := strings.Split(stsDataArr[0], ":")
-		if len(nameArr) < 2 {
+		ppid, err := strconv.Atoi(proc_status_map["PPid"])
+		if err != nil {
 			continue
 		}
 
-		ppidArr := strings.Split(stsDataArr[6], ":")
-		if len(ppidArr) < 2 {
+		if _, ok := proc_status_map["VmRSS"]; !ok {
+			proc_status_map["VmRSS"] = "0"
+		} else {
+			tsize := proc_status_map["VmRSS"]
+			tsizeParts := strings.SplitN(tsize, "KB", 2)
+			if len(tsizeParts) != 2 {
+				proc_status_map["VmRSS"] = "0"
+			} else {
+				proc_status_map["VmRSS"] = strings.TrimSpace(tsizeParts[0])
+			}
+		}
+
+		memory, err := strconv.Atoi(proc_status_map["VmRSS"])
+		if err != nil {
 			continue
 		}
 
-		name := strings.TrimSpace(nameArr[1])
-		ppid := strings.TrimSpace(ppidArr[1])
-
-		if ppid == "0" {
-			process[d.Name()] = name
+		utime, err := strconv.Atoi(proc_stat_map["utime"])
+		if err != nil {
+			continue
 		}
 
-		// fmt.Println(d.Name(), name[1], ppid[1])
+		stime, err := strconv.Atoi(proc_stat_map["stime"])
+		if err != nil {
+			continue
+		}
+
+		starttime, err := strconv.Atoi(proc_stat_map["starttime"])
+		if err != nil {
+			continue
+		}
+
+		totalTime := utime + stime
+
+		processes = append(processes, processInfo{
+			PID:           int64(pid),
+			PPID:          int64(ppid),
+			Name:          proc_status_map["Name"],
+			Memory:        int64(memory),
+			Status:        proc_stat_map["state"],
+			TotalCPUUsage: int64(totalTime),
+			StartTime:     int64(starttime),
+		})
 
 	}
 
-	fmt.Println(process)
+	return processes, nil
 
 }
 
-func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes *uint64, lastTXBytes *uint64) {
+func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes *uint64, lastTXBytes *uint64, lastProcesses map[int64]int64, lastTime *time.Time) {
+
+	cmd := exec.Command("getconf CLK_TCK")
+	err := cmd.Run()
+
+	CLK_TCK := 100
+
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		output, err := cmd.Output()
+		if err != nil {
+			fmt.Println(err.Error())
+		} else {
+			outInt, err := strconv.Atoi(string(output))
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				CLK_TCK = outInt
+			}
+		}
+	}
 
 	uptime, err := getUpTime()
 	if err != nil {
@@ -443,7 +498,42 @@ func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes
 	*lastRXBytes = netData.RXBytes
 	*lastTXBytes = netData.TXBytes
 
-	getProcesses()
+	processes, err := getProcesses()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	if len(lastProcesses) == 0 {
+		for _, process := range processes {
+			lastProcesses[process.PID] = process.TotalCPUUsage
+		}
+
+		*lastTime = time.Now()
+	} else {
+
+		currTime := time.Now()
+		diff := currTime.Sub(*lastTime)
+
+		for i, process := range processes {
+			if _, ok := lastProcesses[process.PID]; ok {
+
+				lastCpuUsage := lastProcesses[process.PID]
+				currCpuUsage := process.TotalCPUUsage
+
+				total_usage := currCpuUsage - lastCpuUsage
+
+				var cpuUsage float64 = 0
+
+				cpuSeconds := float64(total_usage) / float64(CLK_TCK)
+				cpuUsage = (cpuSeconds / diff.Seconds()) * 100
+
+				processes[i].CPU = cpuUsage
+
+			}
+			lastProcesses[process.PID] = process.TotalCPUUsage
+		}
+		*lastTime = time.Now()
+	}
 
 	statMU.Lock()
 	stats = systemStats{
@@ -454,6 +544,7 @@ func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes
 		Memory:   meminfo,
 		Disk:     diskInfo,
 		Network:  netData,
+		Process:  processes,
 	}
 	statMU.Unlock()
 
