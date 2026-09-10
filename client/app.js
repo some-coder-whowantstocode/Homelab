@@ -1,4 +1,110 @@
 var timeOutId = null;
+var processPreviewLength = 10;
+
+
+document.addEventListener("DOMContentLoaded", (event) => {
+  fetchStatus();
+
+  lucide.createIcons();
+
+  const ctx = document.getElementById("network-chart");
+
+  const labels = [
+    "10:00",
+    "10:05",
+    "10:10",
+    "10:15",
+    "10:20",
+    "10:25",
+    "10:30",
+    "10:35",
+    "10:40",
+    "10:45",
+    "10:50",
+    "10:55",
+  ];
+
+  const networkChart = new Chart(ctx, {
+    type: "line",
+
+    data: {
+      labels: labels,
+
+      datasets: [
+        {
+          label: "Download",
+          data: [12, 18, 15, 25, 20, 34, 28, 41, 36, 30, 45, 38],
+          borderWidth: 2,
+          tension: 0.35,
+          fill: false,
+        },
+
+        {
+          label: "Upload",
+          data: [5, 8, 7, 12, 9, 15, 11, 18, 14, 17, 13, 20],
+          borderWidth: 2,
+          tension: 0.35,
+          fill: false,
+        },
+      ],
+    },
+
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: "index",
+      },
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            color: "#8995a5",
+            boxWidth: 10,
+            font: {
+              size: 10,
+            },
+          },
+        },
+      },
+
+      scales: {
+        x: {
+          grid: {
+            color: "#1b232d",
+          },
+
+          ticks: {
+            color: "#687586",
+            font: {
+              size: 9,
+            },
+          },
+        },
+
+        y: {
+          beginAtZero: true,
+
+          grid: {
+            color: "#1b232d",
+          },
+
+          ticks: {
+            color: "#687586",
+            font: {
+              size: 9,
+            },
+          },
+        },
+      },
+    },
+  });
+
+
+  document.getElementById("refresh-btn").addEventListener("click",fetchStatus)
+});
+
 
 function convertkbTogb(kb) {
 
@@ -74,7 +180,7 @@ async function fetchStatus() {
       fetchStatus();
     }, 2000);
   } catch (error) {
-    console.log(error.message);
+    console.log(error);
   }
 }
 
@@ -193,16 +299,6 @@ function updateNetwork(network) {
 }
 
 
-function formatMemory(memoryMB) {
-
-    if (memoryMB >= 1024) {
-        return `${(memoryMB / 1024).toFixed(1)} GB`;
-    }
-
-    return `${memoryMB} MB`;
-}
-
-
 function updateProcesses(processes) {
 
     const processList =
@@ -210,45 +306,53 @@ function updateProcesses(processes) {
 
     processList.innerHTML = "";
 
-    processes.forEach(process => {
+    if (Array.isArray(processes)) {
+      processes.sort((a,b)=> b.CPU - a.CPU && b.Memory - a.Memory)
+    }
+
+    for(let i=0; i < processPreviewLength; i++) {
+
+      let process = processes[i];
+
+      if(i == processPreviewLength) break;
 
         const row = document.createElement("tr");
 
         row.innerHTML = `
             <td>
                 <span class="process-name">
-                    ${process.Name}
+                    ${process?.Name}
                 </span>
             </td>
 
             <td>
                 <span class="process-pid">
-                    ${process.PID}
+                    ${process?.PID}
                 </span>
             </td>
 
             <td>
                 <span class="process-cpu">
-                    ${process.CPU.toFixed(1)}%
+                    ${process?.CPU.toFixed(1)}%
                 </span>
             </td>
 
             <td>
                 <span class="process-memory">
-                    ${formatMemory(process.Memory)}
+                    ${formatBytes(process?.Memory)}
                 </span>
             </td>
 
             <td>
                 <span class="process-status">
                     <span class="process-status-dot"></span>
-                    ${process.Status}
+                    ${getProcessState(process?.Status).toLowerCase()}
                 </span>
             </td>
         `;
 
         processList.appendChild(row);
-    });
+    };
 
     document.getElementById("process-count").textContent =
         processes.length;
@@ -257,108 +361,21 @@ function updateProcesses(processes) {
         "Updated just now";
 }
 
+function getProcessState(state) {
+    const states = {
+        R: "Running",
+        S: "Sleeping",
+        D: "Waiting",
+        Z: "Zombie",
+        T: "Stopped",
+        t: "Tracing stop",
+        W: "Paging / Waking",
+        X: "Dead",
+        x: "Dead",
+        K: "Wakekill",
+        P: "Parked",
+        I: "Idle"
+    };
 
-// updateProcesses(dummyProcesses);
-
-document.addEventListener("DOMContentLoaded", (event) => {
-  fetchStatus();
-
-  lucide.createIcons();
-
-  const ctx = document.getElementById("network-chart");
-
-  const labels = [
-    "10:00",
-    "10:05",
-    "10:10",
-    "10:15",
-    "10:20",
-    "10:25",
-    "10:30",
-    "10:35",
-    "10:40",
-    "10:45",
-    "10:50",
-    "10:55",
-  ];
-
-  const networkChart = new Chart(ctx, {
-    type: "line",
-
-    data: {
-      labels: labels,
-
-      datasets: [
-        {
-          label: "Download",
-          data: [12, 18, 15, 25, 20, 34, 28, 41, 36, 30, 45, 38],
-          borderWidth: 2,
-          tension: 0.35,
-          fill: false,
-        },
-
-        {
-          label: "Upload",
-          data: [5, 8, 7, 12, 9, 15, 11, 18, 14, 17, 13, 20],
-          borderWidth: 2,
-          tension: 0.35,
-          fill: false,
-        },
-      ],
-    },
-
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: "index",
-      },
-      plugins: {
-        legend: {
-          display: true,
-          labels: {
-            color: "#8995a5",
-            boxWidth: 10,
-            font: {
-              size: 10,
-            },
-          },
-        },
-      },
-
-      scales: {
-        x: {
-          grid: {
-            color: "#1b232d",
-          },
-
-          ticks: {
-            color: "#687586",
-            font: {
-              size: 9,
-            },
-          },
-        },
-
-        y: {
-          beginAtZero: true,
-
-          grid: {
-            color: "#1b232d",
-          },
-
-          ticks: {
-            color: "#687586",
-            font: {
-              size: 9,
-            },
-          },
-        },
-      },
-    },
-  });
-
-
-  document.getElementById("refresh-btn").addEventListener("click",fetchStatus)
-});
+    return states[state] || "Unknown";
+}

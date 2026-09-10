@@ -290,14 +290,14 @@ func storeStatus() {
 	var lastCpuUsage float64 = 0
 	var lastRXBytes uint64
 	var lastTXBytes uint64
-	var lastProcesses map[int64]int64 = map[int64]int64{}
+	var lastProcesses map[int64]lastProcInfo = map[int64]lastProcInfo{}
 	lastTime := time.Now()
 
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		getStatus(&lastTotal, &lastIdle, &lastCpuUsage, &lastRXBytes, &lastTXBytes, lastProcesses, &lastTime)
+		getStatus(&lastTotal, &lastIdle, &lastCpuUsage, &lastRXBytes, &lastTXBytes, &lastProcesses, &lastTime)
 	}
 }
 
@@ -343,11 +343,19 @@ func getProcesses() ([]processInfo, error) {
 			proc_status_map["VmRSS"] = "0"
 		} else {
 			tsize := proc_status_map["VmRSS"]
-			tsizeParts := strings.SplitN(tsize, "KB", 2)
+			tsizeParts := strings.SplitN(tsize, "kB", 2)
 			if len(tsizeParts) != 2 {
 				proc_status_map["VmRSS"] = "0"
 			} else {
-				proc_status_map["VmRSS"] = strings.TrimSpace(tsizeParts[0])
+				memorySize, err := strconv.Atoi(strings.TrimSpace(tsizeParts[0]))
+
+				if err != nil {
+					proc_status_map["VmRSS"] = "0"
+					fmt.Println(err.Error())
+				} else {
+					proc_status_map["VmRSS"] = strconv.Itoa(memorySize * 1024)
+				}
+
 			}
 		}
 
@@ -389,28 +397,27 @@ func getProcesses() ([]processInfo, error) {
 
 }
 
-func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes *uint64, lastTXBytes *uint64, lastProcesses map[int64]int64, lastTime *time.Time) {
+func getClockTick() {
+	cmd := exec.Command("getconf", "CLK_TCK")
 
-	cmd := exec.Command("getconf CLK_TCK")
-	err := cmd.Run()
+	CLK_TCK = 100
 
-	CLK_TCK := 100
-
+	output, err := cmd.Output()
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		output, err := cmd.Output()
+		outputText := strings.TrimSpace(string(output))
+		outInt, err := strconv.Atoi(string(outputText))
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
-			outInt, err := strconv.Atoi(string(output))
-			if err != nil {
-				fmt.Println(err.Error())
-			} else {
-				CLK_TCK = outInt
-			}
+			CLK_TCK = outInt
 		}
 	}
+
+}
+
+func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes *uint64, lastTXBytes *uint64, lastProcesses *map[int64]lastProcInfo, lastTime *time.Time) {
 
 	uptime, err := getUpTime()
 	if err != nil {
@@ -503,9 +510,12 @@ func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes
 		fmt.Println(err.Error())
 	}
 
-	if len(lastProcesses) == 0 {
+	if len(*lastProcesses) == 0 {
 		for _, process := range processes {
-			lastProcesses[process.PID] = process.TotalCPUUsage
+			(*lastProcesses)[process.PID] = lastProcInfo{
+				CPU:       process.TotalCPUUsage,
+				StartTime: process.StartTime,
+			}
 		}
 
 		*lastTime = time.Now()
@@ -514,25 +524,45 @@ func getStatus(lastTotal *int, lastIdle *int, lastCpuUsage *float64, lastRXBytes
 		currTime := time.Now()
 		diff := currTime.Sub(*lastTime)
 
+		processMap := map[int64]lastProcInfo{}
+
 		for i, process := range processes {
-			if _, ok := lastProcesses[process.PID]; ok {
+			if _, ok := (*lastProcesses)[process.PID]; ok {
 
-				lastCpuUsage := lastProcesses[process.PID]
-				currCpuUsage := process.TotalCPUUsage
+				if process.StartTime == (*lastProcesses)[process.PID].StartTime {
 
-				total_usage := currCpuUsage - lastCpuUsage
+					lastCpuUsage := (*lastProcesses)[process.PID].CPU
+					currCpuUsage := process.TotalCPUUsage
 
-				var cpuUsage float64 = 0
+					total_usage := currCpuUsage - lastCpuUsage
 
-				cpuSeconds := float64(total_usage) / float64(CLK_TCK)
-				cpuUsage = (cpuSeconds / diff.Seconds()) * 100
+					var cpuUsage float64 = 0
 
-				processes[i].CPU = cpuUsage
+					cpuSeconds := float64(total_usage) / float64(CLK_TCK)
+					cpuUsage = (cpuSeconds / diff.Seconds()) * 100
+					// fmt.Println(
+					// 	"PID:", process.PID,
+					// 	"prev:", lastCpuUsage,
+					// 	"curr:", currCpuUsage,
+					// 	"cpuSecs", cpuSeconds,
+					// 	"delta:", total_usage,
+					// 	"CLK:", CLK_TCK,
+					// 	"elapsed:", diff.Seconds(),
+					// 	"CPU:", cpuUsage,
+					// )
 
+					processes[i].CPU = cpuUsage
+
+				}
 			}
-			lastProcesses[process.PID] = process.TotalCPUUsage
+			processMap[process.PID] = lastProcInfo{
+				CPU:       process.TotalCPUUsage,
+				StartTime: process.StartTime,
+			}
 		}
-		*lastTime = time.Now()
+
+		*lastProcesses = processMap
+		*lastTime = currTime
 	}
 
 	statMU.Lock()

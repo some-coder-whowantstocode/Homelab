@@ -58,6 +58,13 @@ type processInfo struct {
 	StartTime     int64
 }
 
+type lastProcInfo struct {
+	CPU       int64
+	StartTime int64
+}
+
+var CLK_TCK = 100
+
 var statMU sync.RWMutex
 
 var cpuUsageTracker float64 = 0
@@ -86,6 +93,8 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	getClockTick()
 
 	go storeStatus()
 
