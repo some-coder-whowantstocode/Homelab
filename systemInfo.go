@@ -63,7 +63,7 @@ func getHostName() (string, error) {
 		return "", err
 	}
 
-	hostname := string(data)
+	hostname := strings.TrimSpace(string(data))
 
 	return hostname, nil
 }
@@ -298,6 +298,7 @@ func storeStatus() {
 
 	for range ticker.C {
 		getStatus(&lastTotal, &lastIdle, &lastCpuUsage, &lastRXBytes, &lastTXBytes, &lastProcesses, &lastTime)
+		getServices()
 	}
 }
 

@@ -63,13 +63,29 @@ type lastProcInfo struct {
 	StartTime int64
 }
 
+type serviceInfo struct {
+	Services []serviceItem
+}
+
+type serviceItem struct {
+	Name        string
+	Load        string
+	ActiveState string
+	SubState    string
+	EnableState string
+	Description string
+	PID         string
+}
+
 var CLK_TCK = 100
 
 var statMU sync.RWMutex
+var serviceMU sync.RWMutex
 
 var cpuUsageTracker float64 = 0
 
 var stats systemStats
+var services serviceInfo
 
 func status(w http.ResponseWriter, r *http.Request) {
 
@@ -92,7 +108,24 @@ func home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello from my homelab server")
 }
 
+func service(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost")
+	w.Header().Set("Content-Type", "application/json")
+
+	serviceMU.RLock()
+	response := services
+	serviceMU.RUnlock()
+
+	encoder := json.NewEncoder(w)
+	err := encoder.Encode(response)
+	if err != nil {
+		fmt.Println("Failed to encode status: ", err)
+	}
+}
+
 func main() {
+	getServices()
 
 	getClockTick()
 
@@ -100,6 +133,7 @@ func main() {
 
 	http.HandleFunc("/", home)
 	http.HandleFunc("/status", status)
+	http.HandleFunc("/service", service)
 
 	fmt.Println("HomeLab is running on: 8000")
 

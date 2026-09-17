@@ -1,0 +1,130 @@
+<div class="services-page">
+
+    <header class="services-header">
+        <div>
+            <h1 class="page-title">Services</h1>
+            <p class="page-description">System daemons and background services on this server</p>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat-badge">
+                <strong id="total-services">0</strong>
+                <span>Available</span>
+            </div>
+
+            <div class="stat-badge">
+                <strong id="monitored-services">0</strong>
+                <span>Monitored</span>
+            </div>
+
+            <div class="stat-badge">
+                <strong id="running-services" style="color: var(--green);">0</strong>
+                <span>Running</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="service-toolbar">
+        <div class="search-box">
+            <span class="search-icon">
+                <i data-lucide="search"></i>
+            </span>
+            <input
+                type="text"
+                id="service-search"
+                placeholder="Search services by name or description..."
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="filters">
+            <div class="select-wrapper">
+                <select id="status-filter">
+                    <option value="all">All status</option>
+                    <option value="running">Running</option>
+                    <option value="active">Active</option>
+                    <option value="stopped">Stopped</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+
+            <div class="select-wrapper">
+                <select id="monitor-filter">
+                    <option value="all">All services</option>
+                    <option value="monitored">Monitored only</option>
+                    <option value="unmonitored">Unmonitored</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="service-list-card">
+        <div class="list-header">
+            <div>
+                <div class="card-title-lg">Systemd Units & Daemons</div>
+                <div class="card-subtitle">
+                    Click any service to view details and toggle monitoring
+                </div>
+            </div>
+
+            <span id="result-count" class="result-count">
+                0 services
+            </span>
+        </div>
+
+        <div class="service-list-table-header">
+            <div>Service Unit</div>
+            <div>Status</div>
+            <div>PID</div>
+            <div>Startup</div>
+            <div style="text-align: right;">Monitoring</div>
+        </div>
+
+        <div class="service-list" id="service-list">
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="service-modal">
+        <div class="service-modal">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modal-service-name">nginx.service</h2>
+                    <p id="modal-description">Web server and reverse proxy</p>
+                </div>
+                <button class="modal-close" id="modal-close" title="Close">×</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="detail-row">
+                    <span>Active State</span>
+                    <strong id="modal-status">Running</strong>
+                </div>
+
+                <div class="detail-row">
+                    <span>Main PID</span>
+                    <strong id="modal-pid">1234</strong>
+                </div>
+
+                <div class="detail-row">
+                    <span>Enabled at Boot</span>
+                    <strong id="modal-enabled">Yes</strong>
+                </div>
+
+                <div class="detail-row">
+                    <span>Unit File</span>
+                    <strong id="modal-unit">nginx.service</strong>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="secondary-btn" id="modal-cancel">
+                    Close
+                </button>
+                <button class="primary-btn" id="modal-monitor">
+                    Monitor Service
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>

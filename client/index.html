@@ -4,12 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HomeLab - Dynamic Server Monitoring and Management Dashboard">
 
     <title>HomeLab Dashboard</title>
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="css/shell.css">
+
+    <link id="page-stylesheet" rel="stylesheet" href="">
 </head>
 
 <body>
@@ -19,547 +23,83 @@
         <aside class="sidebar">
 
             <div class="brand">
-
                 <div class="brand-icon">
                     <i data-lucide="server"></i>
                 </div>
-
                 <div>
                     <div class="brand-name">HomeLab</div>
                     <div class="brand-subtitle">Server Control</div>
                 </div>
-
             </div>
-
 
             <div class="nav-title">Overview</div>
 
             <nav class="nav">
-
-                <a href="#" class="nav-item active">
+                <a href="#dashboard" class="nav-item active" data-page="dashboard" id="nav-dashboard">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Dashboard</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="#storage" class="nav-item" data-page="storage" id="nav-storage">
                     <i data-lucide="hard-drive"></i>
                     <span>Storage</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="#network" class="nav-item" data-page="network" id="nav-network">
                     <i data-lucide="network"></i>
                     <span>Network</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="#processes" class="nav-item" data-page="processes" id="nav-processes">
                     <i data-lucide="cpu"></i>
                     <span>Processes</span>
                 </a>
-
             </nav>
-
 
             <div class="nav-title">Management</div>
 
             <nav class="nav">
-
-                <a href="#" class="nav-item">
+                <a href="#services" class="nav-item" data-page="services" id="nav-services">
                     <i data-lucide="activity"></i>
                     <span>Services</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="#containers" class="nav-item" data-page="containers" id="nav-containers">
                     <i data-lucide="container"></i>
                     <span>Containers</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="#devices" class="nav-item" data-page="devices" id="nav-devices">
                     <i data-lucide="monitor-smartphone"></i>
                     <span>Devices</span>
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="#logs" class="nav-item" data-page="logs" id="nav-logs">
                     <i data-lucide="file-text"></i>
                     <span>Logs</span>
                 </a>
-
             </nav>
 
-
             <div class="sidebar-bottom">
-
                 <div class="server-status">
-
-                    <div class="server-status-title">
-                        SERVER STATUS
-                    </div>
-
+                    <div class="server-status-title">SERVER STATUS</div>
                     <div class="status-row">
-                        <div class="status-dot"></div>
+                        <div class="shell-status-dot"></div>
                         <span>System Online</span>
                     </div>
-
                 </div>
-
             </div>
 
         </aside>
 
-
-        <!-- =========================
-         MAIN
-    ========================== -->
-
-        <main class="main">
-
-            <!-- HEADER -->
-
-            <header class="header">
-
-                <div>
-                    <h1 class="page-title">Dashboard</h1>
-
-                    <p class="page-description">
-                        System overview and resource utilization
-                    </p>
-                </div>
-
-                <div class="header-right">
-
-                    <span class="refresh-info">
-                        Updated <span id="last-updated">just now</span>
-                    </span>
-
-                    <button class="refresh-btn" id="refresh-btn" title="Refresh">
-                        <i data-lucide="refresh-cw"></i>
-                    </button>
-
-                </div>
-
-            </header>
-
-            <section class="summary-grid">
-
-                <!-- CPU -->
-
-                <div class="summary-card">
-
-                    <div class="card-top">
-
-                        <div class="card-title">
-
-                            <div class="card-icon cpu-icon">
-                                <i data-lucide="cpu"></i>
-                            </div>
-
-                            CPU Usage
-
-                        </div>
-
-                    </div>
-
-                    <div>
-                        <span class="percentage" id="cpu-value">
-                        </span>
-
-                        <span class="unit">%</span>
-                    </div>
-
-                    <div class="progress">
-                        <div id="cpu-progress" class="progress-bar cpu-progress"></div>
-                    </div>
-
-                    <div class="card-footer">
-                        <span>Current usage</span>
-                        <span id="cpu-status">Normal</span>
-                    </div>
-
-                </div>
-
-
-                <div class="summary-card">
-
-                    <div class="card-top">
-
-                        <div class="card-title">
-
-                            <div class="card-icon memory-icon">
-                                <i data-lucide="memory-stick"></i>
-                            </div>
-                            Memory Usage
-                        </div>
-
-                    </div>
-
-                    <div>
-                        <span class="percentage" id="memory-value"></span>
-                        <span class="unit">%</span>
-                    </div>
-
-                    <div class="progress">
-                        <div id="memory-progress" class="progress-bar memory-progress"></div>
-                    </div>
-                    <div class="card-footer">
-                        <span id="memory-used"></span>
-                        <span id="memory-total"></span>
-                    </div>
-                </div>
-
-                <div class="summary-card">
-                    <div class="card-top">
-                        <div class="card-title">
-                            <div class="card-icon disk-icon">
-                                <i data-lucide="hard-drive"></i>
-                            </div>
-                            Disk Usage
-                        </div>
-                    </div>
-
-                    <div>
-                        <span class="percentage" id="disk-value"></span>
-                        <span class="unit">%</span>
-                    </div>
-
-                    <div class="progress">
-                        <div id="disk-progress" class="progress-bar disk-progress"></div>
-                    </div>
-
-                    <div class="card-footer">
-                        <span id="disk-used"></span>
-                        <span id="disk-available"></span>
-                    </div>
-                </div>
-
-            </section>
-
-            <section class="content-grid">
-
-                <div>
-
-                    <div class="panel">
-                        <div class="panel-header">
-                            <div class="panel-title"><i data-lucide="server"></i>System Information</div>
-                            <span class="panel-subtitle">Live system data</span>
-                        </div>
-
-                        <div class="system-info">
-                            <div class="info-item">
-                                <div class="info-label">Host Name</div>
-                                <div class="info-value" id="hostname"></div>
-                            </div>
-
-                            <div class="info-item">
-                                <div class="info-label">IP Address</div>
-                                <div class="info-value" id="ip-address"></div>
-                            </div>
-
-                            <div class="info-item">
-                                <div class="info-label">Uptime</div>
-                                <div class="info-value" id="uptime"></div>
-
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Operating System</div>
-                                <div class="info-value"></div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Architecture</div>
-                                <div class="info-value"></div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Kernel</div>
-                                <div class="info-value"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel" style="margin-top:18px;">
-                        <div class="panel-header">
-                            <div class="panel-title">
-                                <i data-lucide="activity"></i>
-                                Network Traffic
-                            </div>
-                            <div class="chart-controls">
-                                <button class="chart-btn active">1H</button>
-                                <button class="chart-btn">6H</button>
-                                <button class="chart-btn">24H</button>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="network-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <!-- <div>
-                    <div class="panel">
-                        <div class="panel-header">
-                            <div class="panel-title">
-                                <i data-lucide="activity"></i>
-                                Services
-                            </div>
-                            <span class="panel-subtitle">
-                                4 services
-                            </span>
-                        </div>
-                        <div class="services">
-                            <div class="service">
-                                <div class="service-left">
-                                    <div class="service-icon">
-                                        <i data-lucide="globe"></i>
-                                    </div>
-                                    <div>
-                                        <div class="service-name">
-                                            Web Server
-                                        </div>
-                                        <div class="service-description">
-                                            HTTP :8080
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="service-status online">
-                                    <span class="status-dot"></span>
-                                    Online
-                                </div>
-                            </div>
-                            <div class="service">
-                                <div class="service-left">
-                                    <div class="service-icon">
-                                        <i data-lucide="database"></i>
-                                    </div>
-                                    <div>
-                                        <div class="service-name">
-                                            PostgreSQL
-                                        </div>
-                                        <div class="service-description">
-                                            Database
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="service-status online">
-                                    <span class="status-dot"></span>
-                                    Online
-                                </div>
-                            </div>
-                            <div class="service">
-                                <div class="service-left">
-                                    <div class="service-icon">
-                                        <i data-lucide="container"></i>
-                                    </div>
-                                    <div>
-                                        <div class="service-name">
-                                            Docker
-                                        </div>
-                                        <div class="service-description">
-                                            Container runtime
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="service-status online">
-                                    <span class="status-dot"></span>
-                                    Online
-                                </div>
-                            </div>
-                            <div class="service">
-                                <div class="service-left">
-                                    <div class="service-icon">
-                                        <i data-lucide="hard-drive"></i>
-                                    </div>
-                                    <div>
-                                        <div class="service-name">
-                                            Storage
-                                        </div>
-                                        <div class="service-description">
-                                            File storage
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="service-status online">
-                                    <span class="status-dot"></span>
-                                    Online
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="panel" style="margin-top:18px;">
-                        <div class="panel-header">
-                            <div class="panel-title">
-                                <i data-lucide="clock-3"></i>
-                                Recent Activity
-                            </div>
-                        </div>
-                        <div class="activity">
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i data-lucide="server"></i>
-                                </div>
-                                <div>
-                                    <div class="activity-text">
-                                        System monitoring started
-                                    </div>
-                                    <div class="activity-time">
-                                        2 minutes ago
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i data-lucide="network"></i>
-                                </div>
-                                <div>
-                                    <div class="activity-text">
-                                        Network interface detected
-                                    </div>
-                                    <div class="activity-time">
-                                        5 minutes ago
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i data-lucide="database"></i>
-                                </div>
-                                <div>
-                                    <div class="activity-text">
-                                        Database service checked
-                                    </div>
-                                    <div class="activity-time">
-                                        8 minutes ago
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
-                <!-- Network Card -->
-                <section class="network-card">
-                    <div class="card-header">
-                        <div>
-                            <div class="card-title">Network</div>
-                            <div class="card-subtitle" id="network-interface">
-                                wlp0s20f3
-                            </div>
-                        </div>
-
-                        <div class="network-status">
-                            <span class="status-dot"></span>
-                            <span>Connected</span>
-                        </div>
-                    </div>
-
-                    <div class="network-speed">
-                        <div class="speed-item">
-                            <div class="speed-label">
-                                <span class="speed-icon download">↓</span>
-                                Download
-                            </div>
-                            <div class="speed-value" id="network-rx-rate">0 B/s</div>
-                        </div>
-
-                        <div class="speed-divider"></div>
-
-                        <div class="speed-item">
-                            <div class="speed-label">
-                                <span class="speed-icon upload">↑</span>
-                                Upload
-                            </div>
-                            <div class="speed-value" id="network-tx-rate">0 B/s</div>
-                        </div>
-                    </div>
-
-                    <div class="network-total">
-                        <div class="traffic-item">
-                            <span>Received</span>
-                            <strong id="network-rx-total">0 B</strong>
-                        </div>
-
-                        <div class="traffic-item">
-                            <span>Sent</span>
-                            <strong id="network-tx-total">0 B</strong>
-                        </div>
-                    </div>
-
-                    <div class="network-health">
-                        <div class="health-item">
-                            <span>RX Packets</span>
-                            <strong id="network-rx-packets">0</strong>
-                        </div>
-
-                        <div class="health-item">
-                            <span>TX Packets</span>
-                            <strong id="network-tx-packets">0</strong>
-                        </div>
-
-                        <div class="health-item">
-                            <span>Errors</span>
-                            <strong id="network-errors">0</strong>
-                        </div>
-
-                        <div class="health-item">
-                            <span>Drops</span>
-                            <strong id="network-drops">0</strong>
-                        </div>
-
-
-                    </div>
-                </section>
-                <!-- Process Monitor -->
-                <section class="process-card">
-
-                    <div class="process-header">
-                        <div>
-                            <div class="card-title">Processes</div>
-                            <div class="card-subtitle">
-                                Running processes on this server
-                            </div>
-                        </div>
-
-                        <div class="process-count">
-                            <strong id="process-count">142</strong>
-                            <span>running</span>
-                        </div>
-                    </div>
-
-
-                    <div class="process-table-wrapper">
-
-                        <table class="process-table">
-
-                            <thead>
-                                <tr>
-                                    <th>Process</th>
-                                    <th>PID</th>
-                                    <th>CPU</th>
-                                    <th>Memory</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="process-list">
-                                <!-- Process rows inserted by JavaScript -->
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-
-                    <div class="process-footer">
-                        <span id="process-updated">
-                            Updated just now
-                        </span>
-
-                        <button class="process-view-btn">
-                            View all processes →
-                        </button>
-                    </div>
-
-                </section>
-
-            </section>
+        <main class="main" id="main-content">
+            <div id="page-content" class="page-container">
+            </div>
         </main>
+
     </div>
 
-
-    <script src="app.js"></script>
+    <script src="js/router.js"></script>
 
 </body>
 
