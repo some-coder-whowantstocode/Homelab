@@ -1,12 +1,31 @@
-package main
+package system
 
 import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
-func getServices() {
+type serviceInfo struct {
+	Services []serviceItem
+}
+
+type serviceItem struct {
+	Name        string
+	Load        string
+	ActiveState string
+	SubState    string
+	EnableState string
+	Description string
+	PID         string
+}
+
+var Services serviceInfo
+
+var ServiceMU sync.RWMutex
+
+func GetServices() {
 
 	serviceList := exec.Command("systemctl", "list-units", "--type=service", "--no-legend", "--no-pager")
 	out, err := serviceList.Output()
@@ -54,11 +73,11 @@ func getServices() {
 
 	}
 
-	serviceMU.Lock()
-	services = serviceInfo{
+	ServiceMU.Lock()
+	Services = serviceInfo{
 		Services: list,
 	}
-	serviceMU.Unlock()
+	ServiceMU.Unlock()
 
 }
 
