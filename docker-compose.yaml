@@ -1,0 +1,17 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: dockerfile
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: ./web
+      dockerfile: dockerfile
+    ports:
+      - "81:80"
+    depends_on:
+      - server
+  
